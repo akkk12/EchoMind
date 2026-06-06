@@ -205,10 +205,10 @@ Use this sequence for a concise hackathon presentation:
 8. Open **Company Memory** and show the memory map.
 9. Open a project, incident, person, or decision from the map.
 
-A founder-style narrated demo video is also available:
+A sharp 1080p founder-style narrated demo video is also available:
 
 ```text
-demo-video-v2/EchoMind_Founder_Demo.mp4
+demo-video-v3/EchoMind_Founder_Demo_1080p.mp4
 ```
 
 ## Architecture
@@ -321,6 +321,11 @@ echomind/
 ├── ai-service/                # FastAPI + OpenAI reference AI service
 ├── demo-video/
 │   ├── EchoMind_Demo.mp4
+│   └── build_video.sh
+├── demo-video-v3/
+│   ├── EchoMind_Founder_Demo_1080p.mp4
+│   ├── capture_frames.mjs
+│   ├── narration.md
 │   └── build_video.sh
 └── README.md
 ```
