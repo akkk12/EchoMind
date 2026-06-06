@@ -1,0 +1,100 @@
+{
+  "company": {
+    "name": "FreshCart",
+    "description": "FreshCart is a fictional online grocery delivery company. Customers order groceries through a website or app, store shoppers pick the items, and drivers deliver them to the customer.",
+    "story": "FreshCart grew quickly during holiday seasons. At first, one large checkout system handled carts, inventory checks, payment confirmation, delivery scheduling, and customer notifications all at once. That worked when order volume was small, but it became confusing when the business grew. Checkout freezes, stale inventory, and duplicate delivery messages made customers lose trust. FreshCart responded by creating CheckoutFlow for reliable orders, StockSync for accurate inventory, and DeliveryTrack for clearer delivery updates.",
+    "whyEchoMindExists": "FreshCart teams had Jira tickets, pull requests, incident notes, and Slack conversations, but new teammates could not easily answer why the company split checkout, why inventory reservations were added, or who understood delivery notification issues. EchoMind connects those artifacts into one searchable memory."
+  },
+  "projects": {
+    "CheckoutFlow": {
+      "goal": "Make checkout reliable during traffic spikes.",
+      "plainEnglish": "CheckoutFlow is the project that redesigned how grocery orders are placed. It separates cart checkout, inventory reservation, payment confirmation, and order creation.",
+      "businessProblem": "Customers were abandoning carts because checkout froze during busy shopping windows.",
+      "keyDecisions": ["AR-001", "AR-002", "AR-005", "AR-008"],
+      "keyIncidents": ["INC-001", "INC-003"],
+      "keywords": ["checkout", "cart", "orders", "holiday", "traffic", "events", "idempotency"]
+    },
+    "StockSync": {
+      "goal": "Keep online inventory close to what is actually available in stores.",
+      "plainEnglish": "StockSync is the inventory project. It reserves items during checkout and updates stock after shoppers pick or replace items.",
+      "businessProblem": "Customers were ordering groceries that stores no longer had on shelves.",
+      "keyDecisions": ["AR-003", "AR-006", "AR-008"],
+      "keyIncidents": ["INC-002", "INC-004"],
+      "keywords": ["inventory", "stock", "out of stock", "substitution", "reservation", "stores"]
+    },
+    "DeliveryTrack": {
+      "goal": "Give customers and support teams a clear view of order delivery status.",
+      "plainEnglish": "DeliveryTrack is the delivery visibility project. It turns internal order and driver updates into simple customer-facing statuses.",
+      "businessProblem": "Customers and support agents could not tell whether an order was being picked, packed, delayed, or out for delivery.",
+      "keyDecisions": ["AR-004", "AR-005", "AR-007", "AR-008"],
+      "keyIncidents": ["INC-001", "INC-003"],
+      "keywords": ["delivery", "driver", "notifications", "support", "order status", "timeline"]
+    },
+    "EchoMind": {
+      "goal": "Reconstruct organizational memory from engineering artifacts.",
+      "plainEnglish": "EchoMind is the memory project that connects FreshCart incidents, decisions, tickets, PRs, and discussions.",
+      "businessProblem": "Teams kept asking the same questions about why systems changed and who understood the tradeoffs.",
+      "keyDecisions": ["AR-009", "AR-010"],
+      "keyIncidents": [],
+      "keywords": ["memory", "decision history", "expert finder", "timeline", "knowledge graph"]
+    }
+  },
+  "people": {
+    "Maya Rao": {
+      "role": "VP of Engineering",
+      "team": "Platform Architecture",
+      "memorySummary": "Maya owns FreshCart's architecture direction. She sponsored the checkout split and the EchoMind memory project.",
+      "bestFor": ["architecture strategy", "decision history", "CheckoutFlow boundaries", "system ownership"]
+    },
+    "Ethan Brooks": {
+      "role": "Staff Backend Engineer",
+      "team": "Orders Platform",
+      "memorySummary": "Ethan is the main checkout and order-processing expert. He worked on order events, checkout reliability, and notification idempotency.",
+      "bestFor": ["checkout", "orders", "order events", "idempotency"]
+    },
+    "Priya Shah": {
+      "role": "Senior Data Engineer",
+      "team": "Inventory Intelligence",
+      "memorySummary": "Priya is the inventory data expert. She designed StockSync reservation and stock freshness logic.",
+      "bestFor": ["inventory", "stock reservations", "substitutions", "data pipelines"]
+    },
+    "Lucas Chen": {
+      "role": "Site Reliability Engineer",
+      "team": "Platform Architecture",
+      "memorySummary": "Lucas is the reliability and incident-response expert. He handled checkout freezes, event lag, dashboards, and delivery notification incidents.",
+      "bestFor": ["incidents", "dashboards", "scaling", "observability"]
+    },
+    "Amara Okafor": {
+      "role": "Product Manager",
+      "team": "Customer Experience",
+      "memorySummary": "Amara owns the customer-facing order and delivery experience. She shaped DeliveryTrack status language and support workflows.",
+      "bestFor": ["customer experience", "delivery status", "support workflows", "product requirements"]
+    },
+    "Sofia Martinez": {
+      "role": "Security Engineer",
+      "team": "Trust & Safety",
+      "memorySummary": "Sofia owns customer privacy and safe support access. She reviewed customer address handling and support visibility rules.",
+      "bestFor": ["privacy", "customer data", "support access", "retention"]
+    }
+  },
+  "glossary": {
+    "order lifecycle event": "A message that says an order changed state, such as placed, reserved, picked, packed, out for delivery, delivered, or cancelled.",
+    "inventory reservation": "A temporary hold on grocery items during checkout so two customers do not buy the same last item.",
+    "idempotency key": "A stable key that lets FreshCart recognize a repeated notification or event and avoid processing it twice.",
+    "CheckoutFlow": "The project that made checkout reliable by separating cart checkout, inventory reservation, payment confirmation, and order creation.",
+    "StockSync": "The project that keeps online inventory aligned with what stores actually have.",
+    "DeliveryTrack": "The project that explains order and delivery status to customers and support agents.",
+    "event-driven processing": "A design where systems publish updates as events instead of making every step wait for every other system.",
+    "support context": "A safe internal view that helps support agents explain order status without exposing sensitive customer or driver data."
+  },
+  "demoQuestions": [
+    "What is FreshCart?",
+    "Explain the full story in simple terms",
+    "What is CheckoutFlow?",
+    "Why did checkout freeze during the holiday sale?",
+    "Why did FreshCart add inventory reservations?",
+    "Who is Priya Shah?",
+    "Who should I ask about delivery notifications?",
+    "How is StockSync connected to DeliveryTrack?"
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "INC-001",
+    "title": "Holiday Checkout Freeze",
+    "date": "2025-03-15",
+    "impact": "Customers could not complete grocery orders for 40 minutes during a holiday sale. Carts showed spinning loaders, support volume spiked, and some customers abandoned orders.",
+    "rootCause": "The checkout monolith performed cart validation, inventory checks, payment confirmation, order creation, and delivery scheduling in one synchronous path. A traffic spike saturated the database pool.",
+    "remediation": "FreshCart launched CheckoutFlow, split checkout responsibilities, added order lifecycle events, and created dashboards for checkout latency and event lag.",
+    "relatedProjects": ["CheckoutFlow", "StockSync", "DeliveryTrack"],
+    "relatedDecisionIds": ["AR-001", "AR-002", "AR-004"]
+  },
+  {
+    "id": "INC-002",
+    "title": "Out-of-Stock Orders",
+    "date": "2025-04-18",
+    "impact": "Customers successfully ordered popular items that stores no longer had on shelves. Shoppers had to substitute items, and customer satisfaction dropped.",
+    "rootCause": "Inventory was checked at the start of checkout but not reserved. Multiple customers could buy the same low-stock item before store systems updated.",
+    "remediation": "StockSync added inventory reservations during checkout and automatic release rules when orders failed or were cancelled.",
+    "relatedProjects": ["StockSync", "CheckoutFlow"],
+    "relatedDecisionIds": ["AR-003"]
+  },
+  {
+    "id": "INC-003",
+    "title": "Duplicate Delivery Notifications",
+    "date": "2025-06-12",
+    "impact": "Some customers received the same out-for-delivery notification three or four times. Support had to reassure customers that their order was not duplicated.",
+    "rootCause": "Delivery notification events were retried after a timeout, but the notification consumer had no idempotency key to recognize repeated messages.",
+    "remediation": "CheckoutFlow and DeliveryTrack added stable idempotency keys to order and delivery notification events.",
+    "relatedProjects": ["DeliveryTrack", "CheckoutFlow"],
+    "relatedDecisionIds": ["AR-005", "AR-007", "AR-008"]
+  },
+  {
+    "id": "INC-004",
+    "title": "Stale Inventory Search Results",
+    "date": "2025-07-01",
+    "impact": "Customers saw groceries as available in search results even though the store feed had not updated for over an hour. This increased substitutions and cancelled items.",
+    "rootCause": "StockSync did not expose freshness timestamps, so search and checkout could not tell when a store inventory feed was stale.",
+    "remediation": "StockSync added freshness timestamps, stale-feed alerts, and support-visible inventory freshness context.",
+    "relatedProjects": ["StockSync"],
+    "relatedDecisionIds": ["AR-006", "AR-008"]
+  }
+]

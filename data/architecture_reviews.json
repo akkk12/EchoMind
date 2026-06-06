@@ -1,0 +1,233 @@
+[
+  {
+    "id": "AR-001",
+    "title": "Split Checkout Into Order Services",
+    "date": "2025-03-18",
+    "status": "approved",
+    "participants": [
+      {"name": "Maya Rao", "role": "VP of Engineering", "team": "Platform Architecture"},
+      {"name": "Ethan Brooks", "role": "Staff Backend Engineer", "team": "Orders Platform"},
+      {"name": "Lucas Chen", "role": "Site Reliability Engineer", "team": "Platform Architecture"},
+      {"name": "Amara Okafor", "role": "Product Manager", "team": "Customer Experience"}
+    ],
+    "context": "The Holiday Checkout Freeze incident showed that cart validation, inventory checks, payment confirmation, order creation, and delivery scheduling were too tightly coupled.",
+    "discussion_summary": "The team agreed that the checkout system was easy to understand but too fragile during traffic spikes. They chose to split checkout responsibilities so each part could scale and fail more safely.",
+    "alternatives_considered": [
+      {"option": "Add more servers to the existing checkout system"},
+      {"option": "Only optimize database queries"},
+      {"option": "Split checkout into cart, order, inventory reservation, and delivery scheduling services"}
+    ],
+    "final_decision": "Create CheckoutFlow by splitting the checkout monolith into cart validation, order creation, inventory reservation, and delivery scheduling services.",
+    "reasons": ["Checkout froze because too many steps happened in one synchronous path.", "Holiday traffic needed independent scaling.", "Support needed clearer ownership when an order got stuck."],
+    "related_projects": ["CheckoutFlow", "StockSync", "DeliveryTrack"],
+    "related_incidents": ["Holiday Checkout Freeze"]
+  },
+  {
+    "id": "AR-002",
+    "title": "Use Order Lifecycle Events",
+    "date": "2025-04-02",
+    "status": "approved",
+    "participants": [
+      {"name": "Ethan Brooks", "role": "Staff Backend Engineer", "team": "Orders Platform"},
+      {"name": "Priya Shah", "role": "Senior Data Engineer", "team": "Inventory Intelligence"},
+      {"name": "Lucas Chen", "role": "Site Reliability Engineer", "team": "Platform Architecture"},
+      {"name": "Maya Rao", "role": "VP of Engineering", "team": "Platform Architecture"}
+    ],
+    "context": "After splitting checkout, FreshCart needed a clean way to tell inventory, delivery, search, and support systems when an order changed state.",
+    "discussion_summary": "The team chose order lifecycle events so downstream systems could react without blocking checkout. Lucas emphasized retries, monitoring, and event lag visibility.",
+    "alternatives_considered": [
+      {"option": "Keep direct synchronous calls between systems"},
+      {"option": "Run nightly order-status batch jobs"},
+      {"option": "Publish event-driven order lifecycle updates"}
+    ],
+    "final_decision": "Publish order lifecycle events for order placed, inventory reserved, shopper picking, packed, out for delivery, delivered, delayed, and cancelled.",
+    "reasons": ["Checkout should not wait for every downstream system.", "DeliveryTrack needed near-real-time customer status.", "StockSync needed reliable order updates to adjust inventory."],
+    "related_projects": ["CheckoutFlow", "StockSync", "DeliveryTrack"],
+    "related_incidents": ["Holiday Checkout Freeze"]
+  },
+  {
+    "id": "AR-003",
+    "title": "Add Inventory Reservation Service",
+    "date": "2025-04-20",
+    "status": "approved",
+    "participants": [
+      {"name": "Priya Shah", "role": "Senior Data Engineer", "team": "Inventory Intelligence"},
+      {"name": "Ethan Brooks", "role": "Staff Backend Engineer", "team": "Orders Platform"},
+      {"name": "Amara Okafor", "role": "Product Manager", "team": "Customer Experience"},
+      {"name": "Maya Rao", "role": "VP of Engineering", "team": "Platform Architecture"}
+    ],
+    "context": "Customers were ordering items that looked available online but were already gone from store shelves.",
+    "discussion_summary": "Priya proposed reserving inventory during checkout and releasing it if payment failed or the order was cancelled. Product wanted the behavior explained clearly to customers.",
+    "alternatives_considered": [
+      {"option": "Keep showing best-effort inventory only"},
+      {"option": "Hide low-stock items completely"},
+      {"option": "Reserve items during checkout with automatic release rules"}
+    ],
+    "final_decision": "Build StockSync inventory reservations so items are temporarily held during checkout and released if the order does not complete.",
+    "reasons": ["Out-of-stock surprises damaged customer trust.", "Reservations reduce double-selling the last item.", "Support needed a clear explanation for substitutions and unavailable items."],
+    "related_projects": ["StockSync", "CheckoutFlow"],
+    "related_incidents": ["Out-of-Stock Orders"]
+  },
+  {
+    "id": "AR-004",
+    "title": "Create Customer-Friendly Delivery Statuses",
+    "date": "2025-05-08",
+    "status": "approved",
+    "participants": [
+      {"name": "Amara Okafor", "role": "Product Manager", "team": "Customer Experience"},
+      {"name": "Lucas Chen", "role": "Site Reliability Engineer", "team": "Platform Architecture"},
+      {"name": "Ethan Brooks", "role": "Staff Backend Engineer", "team": "Orders Platform"},
+      {"name": "Sofia Martinez", "role": "Security Engineer", "team": "Trust & Safety"}
+    ],
+    "context": "Customers and support agents could see internal order flags but did not understand whether an order was being picked, packed, delayed, or out for delivery.",
+    "discussion_summary": "The team decided to translate internal events into simple delivery statuses and keep driver/customer-sensitive details hidden from broad support access.",
+    "alternatives_considered": [
+      {"option": "Expose raw internal order states"},
+      {"option": "Show only estimated delivery time"},
+      {"option": "Create normalized customer-facing delivery statuses"}
+    ],
+    "final_decision": "Build DeliveryTrack around customer-friendly statuses: order placed, shopper picking, packed, out for delivery, delayed, delivered, and cancelled.",
+    "reasons": ["Customers needed plain-language order status.", "Support agents needed the same view customers saw.", "Raw internal states exposed too much implementation detail."],
+    "related_projects": ["DeliveryTrack", "CheckoutFlow"],
+    "related_incidents": ["Holiday Checkout Freeze"]
+  },
+  {
+    "id": "AR-005",
+    "title": "Deduplicate Delivery Notifications",
+    "date": "2025-06-15",
+    "status": "approved",
+    "participants": [
+      {"name": "Ethan Brooks", "role": "Staff Backend Engineer", "team": "Orders Platform"},
+      {"name": "Lucas Chen", "role": "Site Reliability Engineer", "team": "Platform Architecture"},
+      {"name": "Amara Okafor", "role": "Product Manager", "team": "Customer Experience"},
+      {"name": "Priya Shah", "role": "Senior Data Engineer", "team": "Inventory Intelligence"}
+    ],
+    "context": "Some customers received the same out-for-delivery message multiple times after event retries.",
+    "discussion_summary": "The group agreed that retries are normal, so every customer notification event needed a stable idempotency key.",
+    "alternatives_considered": [
+      {"option": "Reduce retry attempts"},
+      {"option": "Deduplicate only in the mobile app"},
+      {"option": "Add idempotency keys to notification events"}
+    ],
+    "final_decision": "Add idempotency keys to delivery and order notification events so repeated messages are ignored safely.",
+    "reasons": ["Retries can send the same event more than once.", "Customers lose trust when delivery messages repeat.", "Support needed confidence that duplicate messages did not mean duplicate orders."],
+    "related_projects": ["DeliveryTrack", "CheckoutFlow"],
+    "related_incidents": ["Duplicate Delivery Notifications"]
+  },
+  {
+    "id": "AR-006",
+    "title": "Track Inventory Freshness",
+    "date": "2025-07-01",
+    "status": "approved",
+    "participants": [
+      {"name": "Priya Shah", "role": "Senior Data Engineer", "team": "Inventory Intelligence"},
+      {"name": "Lucas Chen", "role": "Site Reliability Engineer", "team": "Platform Architecture"},
+      {"name": "Amara Okafor", "role": "Product Manager", "team": "Customer Experience"},
+      {"name": "Sofia Martinez", "role": "Security Engineer", "team": "Trust & Safety"}
+    ],
+    "context": "Inventory updates from stores sometimes lagged behind customer search and checkout screens.",
+    "discussion_summary": "The team decided to display and monitor freshness signals so stale inventory could be detected before it caused bad orders.",
+    "alternatives_considered": [
+      {"option": "Trust store feeds as-is"},
+      {"option": "Manually review stale stores each morning"},
+      {"option": "Track freshness timestamps and alert on stale inventory"}
+    ],
+    "final_decision": "Add freshness timestamps and stale-inventory alerts to StockSync.",
+    "reasons": ["Search and checkout needed to know when stock data was old.", "Store feeds could fail silently.", "Support needed evidence when substitutions increased."],
+    "related_projects": ["StockSync"],
+    "related_incidents": ["Stale Inventory Search Results"]
+  },
+  {
+    "id": "AR-007",
+    "title": "Limit Support Access To Customer Data",
+    "date": "2025-07-22",
+    "status": "approved",
+    "participants": [
+      {"name": "Sofia Martinez", "role": "Security Engineer", "team": "Trust & Safety"},
+      {"name": "Amara Okafor", "role": "Product Manager", "team": "Customer Experience"},
+      {"name": "Lucas Chen", "role": "Site Reliability Engineer", "team": "Platform Architecture"},
+      {"name": "Ethan Brooks", "role": "Staff Backend Engineer", "team": "Orders Platform"}
+    ],
+    "context": "Support agents needed delivery context, but they did not need full customer address history or driver location traces.",
+    "discussion_summary": "Sofia pushed for least-privilege support views while Amara defined what support actually needed to answer customers.",
+    "alternatives_considered": [
+      {"option": "Give support broad read-only access"},
+      {"option": "Escalate every delivery question to engineering"},
+      {"option": "Create a curated support context panel"}
+    ],
+    "final_decision": "Create a support context panel with safe order status, delay reason, latest customer-visible message, and escalation links.",
+    "reasons": ["Support needed faster answers.", "Customer and driver data needed privacy boundaries.", "A curated panel reduced engineering interruptions."],
+    "related_projects": ["DeliveryTrack"],
+    "related_incidents": ["Duplicate Delivery Notifications"]
+  },
+  {
+    "id": "AR-008",
+    "title": "Order Event Schema Governance",
+    "date": "2025-08-04",
+    "status": "approved",
+    "participants": [
+      {"name": "Maya Rao", "role": "VP of Engineering", "team": "Platform Architecture"},
+      {"name": "Ethan Brooks", "role": "Staff Backend Engineer", "team": "Orders Platform"},
+      {"name": "Priya Shah", "role": "Senior Data Engineer", "team": "Inventory Intelligence"},
+      {"name": "Lucas Chen", "role": "Site Reliability Engineer", "team": "Platform Architecture"},
+      {"name": "Sofia Martinez", "role": "Security Engineer", "team": "Trust & Safety"}
+    ],
+    "context": "CheckoutFlow, StockSync, DeliveryTrack, support dashboards, and analytics all depended on the same order events.",
+    "discussion_summary": "The team agreed that changing event fields casually could break inventory, delivery status, and customer notifications.",
+    "alternatives_considered": [
+      {"option": "Let each producer change events independently"},
+      {"option": "Freeze all order event schemas"},
+      {"option": "Create versioned event schema governance"}
+    ],
+    "final_decision": "Create versioned order event contracts with compatibility checks, idempotency fields, and privacy review for sensitive attributes.",
+    "reasons": ["Many systems depended on order events.", "Schema changes could break customer-facing status.", "Sensitive customer and driver fields needed review."],
+    "related_projects": ["CheckoutFlow", "StockSync", "DeliveryTrack"],
+    "related_incidents": ["Duplicate Delivery Notifications", "Stale Inventory Search Results"]
+  },
+  {
+    "id": "AR-009",
+    "title": "Create FreshCart Decision Memory",
+    "date": "2025-08-18",
+    "status": "approved",
+    "participants": [
+      {"name": "Maya Rao", "role": "VP of Engineering", "team": "Platform Architecture"},
+      {"name": "Lucas Chen", "role": "Site Reliability Engineer", "team": "Platform Architecture"},
+      {"name": "Amara Okafor", "role": "Product Manager", "team": "Customer Experience"},
+      {"name": "Priya Shah", "role": "Senior Data Engineer", "team": "Inventory Intelligence"}
+    ],
+    "context": "New teammates repeatedly asked why checkout was split, why inventory reservations existed, and who understood delivery notification problems.",
+    "discussion_summary": "The team proposed EchoMind as a memory layer that connects incidents, architecture decisions, tickets, PRs, and Slack discussions.",
+    "alternatives_considered": [
+      {"option": "Improve wiki pages"},
+      {"option": "Use Jira as the only decision record"},
+      {"option": "Create a graph-based organizational memory"}
+    ],
+    "final_decision": "Build EchoMind to connect FreshCart decisions, incidents, Jira tickets, pull requests, and discussions.",
+    "reasons": ["Teams needed to understand why systems changed.", "Incident follow-ups were hard to connect to implementation.", "Expert finding mattered during support escalations."],
+    "related_projects": ["EchoMind", "CheckoutFlow", "StockSync", "DeliveryTrack"],
+    "related_incidents": []
+  },
+  {
+    "id": "AR-010",
+    "title": "Use EchoMind For Onboarding",
+    "date": "2025-09-05",
+    "status": "approved",
+    "participants": [
+      {"name": "Maya Rao", "role": "VP of Engineering", "team": "Platform Architecture"},
+      {"name": "Amara Okafor", "role": "Product Manager", "team": "Customer Experience"},
+      {"name": "Sofia Martinez", "role": "Security Engineer", "team": "Trust & Safety"},
+      {"name": "Priya Shah", "role": "Senior Data Engineer", "team": "Inventory Intelligence"}
+    ],
+    "context": "FreshCart wanted new engineers and support leads to understand the order system story without reading dozens of old tickets.",
+    "discussion_summary": "The team agreed that EchoMind should start with a guided company story and then let users drill into evidence.",
+    "alternatives_considered": [
+      {"option": "Send new hires a long document"},
+      {"option": "Record onboarding videos only"},
+      {"option": "Use EchoMind guided memory plus source evidence"}
+    ],
+    "final_decision": "Use EchoMind as an onboarding and decision-history tool with guided story, experts, timeline, and citations.",
+    "reasons": ["The story needed to be understandable before showing raw artifacts.", "Evidence still needed to be available for trust.", "Support and engineering needed the same shared memory."],
+    "related_projects": ["EchoMind"],
+    "related_incidents": []
+  }
+]
