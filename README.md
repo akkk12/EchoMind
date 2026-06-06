@@ -205,10 +205,10 @@ Use this sequence for a concise hackathon presentation:
 8. Open **Company Memory** and show the memory map.
 9. Open a project, incident, person, or decision from the map.
 
-A narrated demo video is also available:
+A founder-style narrated demo video is also available:
 
 ```text
-demo-video/EchoMind_Demo.mp4
+demo-video-v2/EchoMind_Founder_Demo.mp4
 ```
 
 ## Architecture
