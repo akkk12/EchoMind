@@ -209,7 +209,7 @@ A synced 1080p live product demo and hackathon pitch deck are also available:
 
 ```text
 demo-video-v4/EchoMind_Moving_Demo_ElevenLabs_1080p.mp4
-deck/EchoMind_Hackathon_Pitch.pptx
+deck/EchoMind_Competition_Pitch.pptx
 ```
 
 ## Architecture
@@ -333,7 +333,8 @@ echomind/
 │   ├── record_demo.mjs
 │   └── build_video.sh
 ├── deck/
-│   └── EchoMind_Hackathon_Pitch.pptx
+│   ├── EchoMind_Competition_Pitch.pptx
+│   └── EchoMind_Competition_Deck_Review.md
 ├── DEMO_TIMELINE.md
 └── README.md
 ```
