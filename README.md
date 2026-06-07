@@ -205,10 +205,11 @@ Use this sequence for a concise hackathon presentation:
 8. Open **Company Memory** and show the memory map.
 9. Open a project, incident, person, or decision from the map.
 
-A sharp 1080p founder-style narrated demo video is also available:
+A synced 1080p live product demo and hackathon pitch deck are also available:
 
 ```text
-demo-video-v3/EchoMind_Founder_Demo_1080p.mp4
+demo-video-v4/EchoMind_Moving_Demo_ElevenLabs_1080p.mp4
+deck/EchoMind_Hackathon_Pitch.pptx
 ```
 
 ## Architecture
@@ -327,6 +328,13 @@ echomind/
 │   ├── capture_frames.mjs
 │   ├── narration.md
 │   └── build_video.sh
+├── demo-video-v4/
+│   ├── EchoMind_Moving_Demo_ElevenLabs_1080p.mp4
+│   ├── record_demo.mjs
+│   └── build_video.sh
+├── deck/
+│   └── EchoMind_Hackathon_Pitch.pptx
+├── DEMO_TIMELINE.md
 └── README.md
 ```
 

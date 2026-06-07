@@ -29,3 +29,10 @@ demo-video-v3/audio/
 demo-video-v3/frames/
 demo-video-v3/work/
 demo-video-v3/preview.png
+
+demo-video-v4/frames/
+demo-video-v4/work/
+demo-video-v4/preview*.png
+demo-video-v4/timeline-*.png
+
+outputs/
